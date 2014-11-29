@@ -53,7 +53,7 @@ static char *cmd_line_android = LINUX_KERNEL_ARG_STRING \
 #ifdef CONFIG_OF_LIBFDT
 static int setup_dt_blob(void *blob)
 {
-	char *bootargs = LINUX_KERNEL_ARG_STRING;
+	char *bootargs = NULL;
 	char *p;
 	unsigned int mem_bank = MEM_BANK;
 	unsigned int mem_size = MEM_SIZE;
@@ -67,6 +67,10 @@ static int setup_dt_blob(void *blob)
 	dbg_info("\nUsing device tree in place at %d\n",
 						(unsigned int)blob);
 
+#ifdef CMDLINE
+	bootargs = LINUX_KERNEL_ARG_STRING;
+#endif
+
 #if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_SAMA5D3XEK)
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
 		bootargs = cmd_line_android_pda;
@@ -74,16 +78,18 @@ static int setup_dt_blob(void *blob)
 		bootargs = cmd_line_android;
 #endif
 
-	/* set "/chosen" node */
-	for (p = bootargs; *p == ' '; p++)
-		;
+	if (bootargs) {
+		/* set "/chosen" node */
+		for (p = bootargs; *p == ' '; p++)
+			;
 
-	if (*p == '\0')
-		return -1;
+		if (*p == '\0')
+			return -1;
 
-	ret = fixup_chosen_node(blob, p);
-	if (ret)
-		return ret;
+		ret = fixup_chosen_node(blob, p);
+		if (ret)
+			return ret;
+	}
 
 	ret = fixup_memory_node(blob, &mem_bank, &mem_size);
 	if (ret)
