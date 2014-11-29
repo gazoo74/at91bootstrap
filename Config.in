@@ -133,6 +133,8 @@ config CONFIG_MEM_SIZE
 	default "0x10000000" if CONFIG_RAM_256MB
 	default "0x20000000" if CONFIG_RAM_512MB
 
+menu "Flattened Device Tree"
+
 config CONFIG_OF_LIBFDT
 	bool "Flattened Device Tree Support"
 	default y
@@ -150,6 +152,8 @@ config CONFIG_OF_ADDRESS
 	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
+
+endmenu
 
 endmenu
 
