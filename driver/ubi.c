@@ -17,6 +17,9 @@
  */
 #include "common.h"
 #include "ubi.h"
+#ifdef CONFIG_UBI_CRC
+#include "crc32.h"
+#endif
 #include "div.h"
 #include "debug.h"
 #include "nandflash.h"
@@ -32,6 +35,9 @@ static int ubi_read_peb(struct ubi_device *ubi,
 	unsigned char *data, *d = dest;
 	struct ubi_ec_hdr *ec_hdr;
 	struct ubi_vid_hdr *vid_hdr;
+#ifdef CONFIG_UBI_CRC
+	unsigned int hdr_crc, crc;
+#endif
 
 	if (nand_check_badblock(ubi->nand, block, ubi->buf)) {
 		dbg_info("UBI: Bad block %u!\n", block);
@@ -50,6 +56,16 @@ static int ubi_read_peb(struct ubi_device *ubi,
 				block, swap_uint32(ec_hdr->magic), UBI_EC_HDR_MAGIC);
 		return -1;
 	}
+
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(UBI_CRC32_INIT, (unsigned char const *) ec_hdr, UBI_EC_HDR_SIZE_CRC);
+	hdr_crc = swap_uint32(ec_hdr->hdr_crc);
+
+	if (hdr_crc != crc) {
+		dbg_info("UBI: Bad Erase-Counter Header CRC at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+		return -1;
+	}
+#endif
 
 	if (swap_uint32(ec_hdr->vid_hdr_offset) >= ubi->nand->pagesize) {
 		unsigned int p, o;
@@ -76,6 +92,16 @@ static int ubi_read_peb(struct ubi_device *ubi,
 				block, swap_uint32(vid_hdr->magic), UBI_VID_HDR_MAGIC);
 		return -1;
 	}
+
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(UBI_CRC32_INIT, (unsigned char const *) vid_hdr, UBI_VID_HDR_SIZE_CRC);
+	hdr_crc = swap_uint32(vid_hdr->hdr_crc);
+
+	if (hdr_crc != crc) {
+		dbg_info("UBI: Bad Volume-ID Header CRC at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+		return -1;
+	}
+#endif
 
 	lebsize = ubi->nand->blocksize - swap_uint32(ec_hdr->data_offset);
 	offset = lnum * lebsize;
@@ -137,6 +163,16 @@ static int ubi_read_peb(struct ubi_device *ubi,
 		l += s;
 	}
 
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(UBI_CRC32_INIT, dest, swap_uint32(vid_hdr->data_size));
+	hdr_crc = swap_uint32(vid_hdr->data_crc);
+
+	if (hdr_crc != crc) {
+		dbg_info("UBI: Bad Volume-ID Data CRC at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+		return -1;
+	}
+#endif
+
 	*len = l;
 	return *len ? 0 : -1;
 }
@@ -160,6 +196,9 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 		unsigned int page = 0;
 		struct ubi_ec_hdr *ec_hdr;
 		struct ubi_vid_hdr *vid_hdr;
+#ifdef CONFIG_UBI_CRC
+		unsigned int hdr_crc, crc;
+#endif
 
 		if (nand_check_badblock(nand, block, ubi->buf)) {
 			dbg_info("UBI: Bad block %u!\n", block);
@@ -179,6 +218,16 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 					block, swap_uint32(ec_hdr->magic), UBI_EC_HDR_MAGIC);
 			continue;
 		}
+
+#ifdef CONFIG_UBI_CRC
+		crc = crc32(UBI_CRC32_INIT, (unsigned char const *) ec_hdr, UBI_EC_HDR_SIZE_CRC);
+		hdr_crc = swap_uint32(ec_hdr->hdr_crc);
+
+		if (hdr_crc != crc) {
+			dbg_info("UBI: Bad Erase-Counter Header CRC at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+			continue;
+		}
+#endif
 
 		if (swap_uint32(ec_hdr->vid_hdr_offset) >= nand->pagesize) {
 			unsigned int p, o;
@@ -207,6 +256,16 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 				block, swap_uint32(vid_hdr->magic), UBI_VID_HDR_MAGIC);
 			continue;
 		}
+
+#ifdef CONFIG_UBI_CRC
+		crc = crc32(UBI_CRC32_INIT, (unsigned char const *) vid_hdr, UBI_VID_HDR_SIZE_CRC);
+		hdr_crc = swap_uint32(vid_hdr->hdr_crc);
+
+		if (hdr_crc != crc) {
+			dbg_info("UBI: Bad Volume-ID Header CRC at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+			continue;
+		}
+#endif
 
 		ubi->pebs[block].vol_id = swap_uint32(vid_hdr->vol_id);
 		ubi->pebs[block].lnum = swap_uint32(vid_hdr->lnum);
@@ -242,7 +301,7 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 				if (!ubi->pebs[pnum].copy_flag) {
 					ubi->pebs[block].copy_flag = 1;
 					ubi->pebs[block].vol_id = 0xFFFFFFFF;
-					dbg_loud("UBI: New PEB is %u\n", pnum);
+					dbg_loud("UBI: New PEB is %u! Old was %u.\n", pnum, block);
 					continue;
 				}
 			}
@@ -250,7 +309,7 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 				if (!ubi->pebs[pnum].copy_flag) {
 					ubi->pebs[pnum].copy_flag = 1;
 					ubi->pebs[pnum].vol_id = 0xFFFFFFFF;
-					dbg_loud("UBI: New PEB is %u\n", block);
+					dbg_loud("UBI: New PEB is %u! Old was %u.\n", block, pnum);
 					continue;
 				}
 			}

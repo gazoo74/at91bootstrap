@@ -70,6 +70,10 @@ ifeq ($(CONFIG_UBI),y)
 CPPFLAGS += -DCONFIG_UBI
 endif
 
+ifeq ($(CONFIG_UBI_CRC),y)
+CPPFLAGS += -DCONFIG_UBI_CRC
+endif
+
 ifeq ($(CONFIG_SDCARD),y)
 CPPFLAGS += -DCONFIG_SDCARD
 endif

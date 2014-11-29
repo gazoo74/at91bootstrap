@@ -162,6 +162,11 @@ config	CONFIG_UBI
 	default n
 	help
 
+config	CONFIG_UBI_CRC
+	bool "Check for CRC"
+	default n
+	help
+
 config CONFIG_UBI_ADDRESS
 	string "The External Ram Address to Load UBI Volume Table"
 	depends on CONFIG_UBI

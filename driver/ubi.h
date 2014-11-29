@@ -20,6 +20,9 @@
 
 #include "nand.h"
 
+/* The initial CRC32 value used when calculating CRC checksums */
+#define UBI_CRC32_INIT 0xFFFFFFFFU
+
 /* Erase counter header magic number (ASCII "UBI#") */
 #define UBI_EC_HDR_MAGIC swap_uint32(0x23494255)
 /* Volume identifier header magic number (ASCII "UBI!") */
@@ -94,6 +97,10 @@ enum {
 /* Sizes of UBI headers */
 #define UBI_EC_HDR_SIZE  sizeof(struct ubi_ec_hdr)
 #define UBI_VID_HDR_SIZE sizeof(struct ubi_vid_hdr)
+
+/* Sizes of UBI headers without the ending CRC */
+#define UBI_EC_HDR_SIZE_CRC  (UBI_EC_HDR_SIZE  - sizeof(unsigned int))
+#define UBI_VID_HDR_SIZE_CRC (UBI_VID_HDR_SIZE - sizeof(unsigned int))
 
 /**
  * struct ubi_ec_hdr - UBI erase counter header.
@@ -295,6 +302,9 @@ struct ubi_vid_hdr {
 
 /* Size of the volume table record */
 #define UBI_VTBL_RECORD_SIZE sizeof(struct ubi_vtbl_record)
+
+/* Size of the volume table record without the ending CRC */
+#define UBI_VTBL_RECORD_SIZE_CRC (UBI_VTBL_RECORD_SIZE - sizeof(unsigned int))
 
 /**
  * struct ubi_vtbl_record - a record in the volume table.
