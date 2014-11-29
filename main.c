@@ -83,23 +83,21 @@ int main(void)
 	char *media_str = NULL;
 	int ret;
 
+#ifdef CONFIG_SDCARD
 	char filename[FILENAME_BUF_LEN];
-
 #ifdef CONFIG_OF_LIBFDT
 	char of_filename[FILENAME_BUF_LEN];
+	memset(of_filename, 0, FILENAME_BUF_LEN);
+#endif
+	memset(filename, 0, FILENAME_BUF_LEN);
 #endif
 
 	memset(&image, 0, sizeof(image));
-	memset(filename, 0, FILENAME_BUF_LEN);
-
-#ifdef CONFIG_OF_LIBFDT
-	memset(of_filename, 0, FILENAME_BUF_LEN);
-#endif
-
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
+	image.length = (unsigned int) -1;
 
 #ifdef CONFIG_FLASH
 	media_str = "FLASH: ";
@@ -113,13 +111,30 @@ int main(void)
 #endif
 
 #ifdef CONFIG_NANDFLASH
+#ifdef CONFIG_UBI
+	media_str = "UBI: ";
+	image.offset = UBI_OFFSET;
+	image.volname = UBI_KERNEL_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image.spare_volname = UBI_KERNEL_SPARE_VOLNAME;
+#endif
+#else
 	media_str = "NAND: ";
 	image.offset = IMG_ADDRESS;
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image.length = IMG_SIZE;
 #endif
+#endif
 #ifdef CONFIG_OF_LIBFDT
+#ifdef CONFIG_UBI
+	image.of_volname = UBI_DTB_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image.of_spare_volname = UBI_DTB_SPARE_VOLNAME;
+#endif
+	image.of_length = (unsigned int) -1;
+#else
 	image.of_offset = OF_OFFSET;
+#endif
 #endif
 #endif
 
