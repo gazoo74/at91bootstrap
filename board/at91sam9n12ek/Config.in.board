@@ -14,5 +14,6 @@ config	CONFIG_AT91SAM9N12EK
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
 	select SUPPORT_BUS_SPEED_133MHZ
+	select CONFIG_KERNEL_CMDLINE
 	help
 	    Use the AT91SAM9N12EK Development board
