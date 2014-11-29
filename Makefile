@@ -128,6 +128,14 @@ IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
 JUMP_ADDR := $(strip $(subst ",,$(CONFIG_JUMP_ADDR)))
 OF_OFFSET := $(strip $(subst ",,$(CONFIG_OF_OFFSET)))
 OF_ADDRESS := $(strip $(subst ",,$(CONFIG_OF_ADDRESS)))
+UBI_SPARE := $(strip $(subst ",,$(CONFIG_UBI_SPARE)))
+UBI_ADDRESS := $(strip $(subst ",,$(CONFIG_UBI_ADDRESS)))
+UBI_OFFSET := $(strip $(subst ",,$(CONFIG_UBI_OFFSET)))
+UBI_SIZE := $(strip $(subst ",,$(CONFIG_UBI_SIZE)))
+IMG_UBI_VOLNAME := $(strip $(subst ",,$(CONFIG_IMG_UBI_VOLNAME)))
+IMG_SPARE_UBI_VOLNAME := $(strip $(subst ",,$(CONFIG_IMG_SPARE_UBI_VOLNAME)))
+OF_UBI_VOLNAME := $(strip $(subst ",,$(CONFIG_OF_UBI_VOLNAME)))
+OF_SPARE_UBI_VOLNAME := $(strip $(subst ",,$(CONFIG_OF_UBI_SPARE_VOLNAME)))
 BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
 IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
@@ -161,6 +169,10 @@ ifeq ($(CONFIG_OF_LIBFDT), y)
 BLOB:=-dt
 else
 BLOB:=
+endif
+
+ifeq ($(CONFIG_UBI), y)
+BLOB:=$(BLOB)-ubi
 endif
 
 ifeq ($(CONFIG_LOAD_LINUX), y)
