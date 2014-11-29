@@ -36,6 +36,7 @@
 #include "nand.h"
 #include "pmecc.h"
 #include "hamming.h"
+#include "ubi.h"
 #include "timer.h"
 #include "fdt.h"
 #include "div.h"
@@ -735,7 +736,7 @@ static int nand_read_sector(struct nand_info *nand,
 }
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
-static int nand_check_badblock(struct nand_info *nand,
+int nand_check_badblock(struct nand_info *nand,
 				unsigned int block,
 				unsigned char *buffer)
 {
@@ -768,7 +769,7 @@ static void nand_read_ecc(struct nand_ooblayout *ooblayout,
 }
 #endif
 
-static int nand_read_page(struct nand_info *nand,
+int nand_read_page(struct nand_info *nand,
 				unsigned int block,
 				unsigned int page,
 				unsigned int zone_flag,
@@ -857,7 +858,40 @@ static int nandflash_recovery(struct nand_info *nand)
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
-static int nand_loadimage(struct nand_info *nand,
+#ifdef CONFIG_UBI
+int nand_loadvolume(struct ubi_device *ubi,
+			const char *volname,
+			const char *spare_volname,
+			unsigned int *length,
+			unsigned char *dest)
+{
+	const char *vol = volname;
+	unsigned int id;
+	int ret;
+
+	id = ubi_searchvolume(ubi, vol);
+	if (id == (unsigned int) -1 || ubi->vol_table[id].upd_marker) {
+		dbg_info("UBI: Volume %s %s! ", vol, id == (unsigned int) -1 ? "not found" : "is marked as update!");
+		vol = spare_volname;
+		dbg_info("UBI: Using spare volume %s!\n", vol);
+		id = ubi_searchvolume(ubi, vol);
+		if (id == (unsigned int) -1) {
+			dbg_info("UBI: Spare-volume %s not found!\n", vol);
+			return -1;
+		}
+	}
+
+	dbg_loud("UBI: Volume %s has volume-id %x.\n", vol, id);
+	ret = ubi_loadimage(ubi, id, length, dest);
+	if (ret) {
+		dbg_info("UBI: Failed to load volume %s!\n", vol);
+		return -1;
+	}
+
+	return 0;
+}
+#else
+int nand_loadimage(struct nand_info *nand,
 				unsigned int offset,
 				unsigned int length,
 				unsigned char *dest)
@@ -942,10 +976,14 @@ static int update_image_length(struct nand_info *nand,
 #endif
 }
 #endif
+#endif
 
 int load_nandflash(struct image_info *image)
 {
 	struct nand_info nand;
+#ifdef CONFIG_UBI
+	struct ubi_device ubi;
+#endif
 	int ret;
 
 	nandflash_hw_init();
@@ -967,6 +1005,34 @@ int load_nandflash(struct image_info *image)
 	dbg_info("NAND: Using Software ECC\n");
 #endif
 
+#ifdef CONFIG_UBI
+	dbg_info("UBI: Initialize UBI...\n");
+	ret = ubi_init(&ubi, &nand);
+	if (ret) {
+		dbg_info("UBI: Failed to initialize UBI!\n");
+		return 1;
+	}
+
+	dbg_info("UBI: Loading UBI volume %s/%s to @%x (%u bytes length)...\n",
+		image->volname, image->spare_volname, image->dest, image->length);
+	ret = nand_loadvolume(&ubi, image->volname, image->spare_volname,
+			&image->length, image->dest);
+	if (ret) {
+		dbg_info("UBI: Failed to load volume %s/%s!\n", image->volname, image->spare_volname);
+		return 1;
+	}
+
+#ifdef CONFIG_OF_LIBFDT
+	dbg_info("UBI: Loading UBI volume %s/%s to @%x (%u bytes length)...\n",
+		image->of_volname, image->of_spare_volname, image->of_dest, image->of_length);
+	ret = nand_loadvolume(&ubi, image->of_volname, image->of_spare_volname,
+			&image->of_length, image->of_dest);
+	if (ret) {
+		dbg_info("UBI: Failed to load volume %s/%s!\n", image->of_volname, image->of_spare_volname);
+			return 1;
+	}
+#endif
+#else
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	int length = update_image_length(&nand,
 				image->offset, image->dest, KERNEL_IMAGE);
@@ -1001,6 +1067,6 @@ int load_nandflash(struct image_info *image)
 	if (ret)
 		return ret;
 #endif
-
+#endif
 	return 0;
  }

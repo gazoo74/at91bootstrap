@@ -154,6 +154,47 @@ config CONFIG_MEM_SIZE
 	default "0x10000000" if CONFIG_RAM_256MB
 	default "0x20000000" if CONFIG_RAM_512MB
 
+menu "Unsorted Block Images"
+	depends on CONFIG_LOAD_LINUX
+
+config	CONFIG_UBI
+	bool "Unsorted Block Images Support (EXPERIMENTAL)"
+	default n
+	help
+
+config CONFIG_UBI_ADDRESS
+	string "The External Ram Address to Load UBI Volume Table"
+	depends on CONFIG_UBI
+	default "0x70000000" if AT91SAM9G45
+	default "0x20000000"
+	help
+
+config CONFIG_UBI_OFFSET
+	string "Flash Offset for UBI Partition"
+	depends on CONFIG_UBI
+	default "0x00020000"
+	help
+
+config CONFIG_UBI_SIZE
+	string "Flash Size for UBI Partition"
+	depends on CONFIG_UBI
+	default "0x07FE0000"
+	help
+
+config CONFIG_IMG_UBI_VOLNAME
+	string "Kernel Volume Name"
+	depends on CONFIG_UBI
+	default "kernel"
+	help
+
+config CONFIG_IMG_SPARE_UBI_VOLNAME
+	string "Kernel Spare Volume Name"
+	depends on CONFIG_UBI
+	default "kernel-spare"
+	help
+
+endmenu
+
 menu "Flattened Device Tree"
 
 config CONFIG_OF_LIBFDT
@@ -172,6 +213,18 @@ config CONFIG_OF_ADDRESS
 	depends on CONFIG_OF_LIBFDT
 	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
+	help
+
+config CONFIG_OF_UBI_VOLNAME
+	string "Device Tree Blob UBI Volume Name"
+	depends on CONFIG_OF_LIBFDT && CONFIG_UBI
+	default "dtb"
+	help
+
+config CONFIG_OF_UBI_SPARE_VOLNAME
+	string "Device Tree Blob Spare UBI Volume Name"
+	depends on CONFIG_OF_LIBFDT && CONFIG_UBI
+	default "dtb-spare"
 	help
 
 endmenu
