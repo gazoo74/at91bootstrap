@@ -39,7 +39,8 @@ extern int of_set_property(void *blob,
 			   int nodeoffset,
 			   const char *property_name,
 			   const void *value,
-			   int valuelen);
+			   int valuelen,
+			   int prepend);
 extern unsigned int of_get_dt_total_size(void *blob);
 extern int check_dt_blob_valid(void *blob);
 #endif /* #ifndef __FDT_H__ */

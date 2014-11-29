@@ -49,7 +49,7 @@ char *bootargs = CMDLINE;
  * property "bootargs": This zero-terminated string is passed
  * as the kernel command line.
  */
-static int fixup_chosen_node(void *blob, const char *bootargs)
+static int fixup_chosen_node(void *blob, const char *bootargs, int prepend)
 {
 	int nodeoffset;
 	const char *value = bootargs;
@@ -62,7 +62,7 @@ static int fixup_chosen_node(void *blob, const char *bootargs)
 		return ret;
 	}
 
-	ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen);
+	ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen, prepend);
 	if (ret) {
 		dbg_info("Kernel/FDT: Failed to set bootargs property!\n");
 		return ret;
@@ -93,7 +93,7 @@ static int fixup_memory_node(void *blob,
 
 	/* set "device_type" property */
 	ret = of_set_property(blob, nodeoffset,
-			      "device_type", "memory", sizeof("memory"));
+			      "device_type", "memory", sizeof("memory"), 0);
 	if (ret) {
 		dbg_info("Kernel/FDT: Failed to set device_type property!\n");
 		return ret;
@@ -104,7 +104,7 @@ static int fixup_memory_node(void *blob,
 	data[0] = swap_uint32(*mem_bank);
 	data[1] = swap_uint32(*mem_size);
 
-	ret = of_set_property(blob, nodeoffset, "reg", data, valuelen);
+	ret = of_set_property(blob, nodeoffset, "reg", data, valuelen, 0);
 	if (ret) {
 		dbg_info("Kernel/FDT: Failed to set reg property!\n");
 		return ret;
@@ -135,7 +135,7 @@ static int setup_dt_blob(void *blob)
 		if (*p == '\0')
 			return -1;
 
-		ret = fixup_chosen_node(blob, p);
+		ret = fixup_chosen_node(blob, p, 0);
 		if (ret)
 			return ret;
 	}

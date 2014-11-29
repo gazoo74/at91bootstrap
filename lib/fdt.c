@@ -485,7 +485,8 @@ static int of_add_property(void *blob,
 static int of_update_property_value(void *blob,
 				int property_offset,
 				const void *value,
-				int valuelen)
+				int valuelen,
+				int prepend)
 {
 	int oldlen;
 	unsigned int *plen;
@@ -501,6 +502,9 @@ static int of_update_property_value(void *blob,
 	/* get the old len of value */
 	oldlen = swap_uint32(*plen);
 
+	if (prepend)
+		valuelen += oldlen;
+
 	ret = of_blob_move_dt_struct(blob, point,
 			OF_ALIGN(oldlen), OF_ALIGN(valuelen));
 	if (ret)
@@ -510,6 +514,10 @@ static int of_update_property_value(void *blob,
 	*plen = swap_uint32(valuelen);
 	if (valuelen > oldlen)
 		memset(pvalue + oldlen, 0, OF_ALIGN(valuelen) - oldlen);
+	if (prepend) {
+		valuelen -= oldlen;
+		memmove(pvalue + valuelen, pvalue, oldlen);
+	}
 	memcpy(pvalue, value, valuelen);
 
 	return 0;
@@ -519,7 +527,9 @@ int of_set_property(void *blob,
 		    int nodeoffset,
 		    const char *property_name,
 		    const void *value,
-		    int valuelen)
+			int valuelen,
+			int prepend)
+
 {
 	int property_offset;
 	int ret;
@@ -534,7 +544,7 @@ int of_set_property(void *blob,
 				property_name, value, valuelen);
 	}
 
-	return of_update_property_value(blob, property_offset, value, valuelen);
+	return of_update_property_value(blob, property_offset, value, valuelen, prepend);
 }
 
 /* ---------------------------------------------------- */
