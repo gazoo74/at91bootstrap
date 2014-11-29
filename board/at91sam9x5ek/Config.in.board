@@ -14,5 +14,6 @@ config	CONFIG_AT91SAM9X5EK
 	select CONFIG_HAS_HW_INFO
 	select CONFIG_HAS_ONE_WIRE
 	select SUPPORT_BUS_SPEED_133MHZ
+	select CONFIG_KERNEL_CMDLINE
 	help
 	    Use the AT91SAM9X5EK Development board
