@@ -16,5 +16,6 @@ config CONFIG_SAMA5D3_XPLAINED
 	select CONFIG_HAS_PMIC_ACT8865
 	select SUPPORT_BUS_SPEED_133MHZ
 	select SUPPORT_BUS_SPEED_166MHZ
+	select CONFIG_KERNEL_CMDLINE
 	help
 	    Use the SAMA5D3 Xplained development board
