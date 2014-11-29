@@ -45,7 +45,7 @@ config CONFIG_MEM_SIZE
 	default "0x20000000" if CONFIG_RAM_512MB
 
 config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || (CONFIG_NANDFLASH && !CONFIG_UBI)
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00040000" if CONFIG_DATAFLASH
@@ -59,6 +59,20 @@ config CONFIG_JUMP_ADDR
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
+
+config CONFIG_UBI_IMG_VOLNAME
+	string "Kernel Volume Name"
+	depends on CONFIG_UBI
+	default "kernel"
+	help
+	  The name of the UBI volume which contains the Kernel Image.
+
+config CONFIG_UBI_IMG_SPARE_VOLNAME
+	string "Kernel Spare Volume Name"
+	depends on CONFIG_UBI && CONFIG_UBI_SPARE
+	default "kernel-spare"
+	help
+	  The name of the UBI volume which contains the spare Kernel Image.
 
 menu "Flattened Device Tree"
 
@@ -79,6 +93,31 @@ config CONFIG_OF_ADDRESS
 	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
+
+config CONFIG_UBI_DTB
+	bool "Load Device Tree from UBI Volume"
+	depends on CONFIG_UBI && CONFIG_OF_LIBFDT
+	default y
+	help
+	  Load an extra UBI volume which contains the Device-Tree Blob.
+
+	  Note: Do not use that feature if you are using a kernel which boots:
+	  - using legacy ATAGs or
+	  - using an appended Device-Tree Blob
+
+config CONFIG_UBI_DTB_VOLNAME
+	string "Device Tree Blob UBI Volume Name"
+	depends on CONFIG_UBI_DTB
+	default "dtb"
+	help
+	  The name of the UBI volume which contains the Device-Tree Blob.
+
+config CONFIG_UBI_DTB_SPARE_VOLNAME
+	string "Device Tree Blob Spare UBI Volume Name"
+	depends on CONFIG_UBI_DTB && CONFIG_UBI_SPARE
+	default "dtb-spare"
+	help
+	  The name of the UBI volume which contains the spare Device-Tree Blob.
 
 endmenu
 

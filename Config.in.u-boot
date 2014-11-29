@@ -3,7 +3,7 @@ menu "U-Boot Image Storage Setup"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || (CONFIG_NANDFLASH && !CONFIG_UBI)
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00008000" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
@@ -12,7 +12,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || (CONFIG_NANDFLASH && !CONFIG_UBI)
 	default	"0x00080000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
@@ -25,5 +25,19 @@ config CONFIG_JUMP_ADDR
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
+
+config CONFIG_UBI_IMG_VOLNAME
+	string "U-Boot Volume Name"
+	depends on CONFIG_UBI
+	default "u-boot"
+	help
+	  The name of the UBI volume which contains the U-Boot Image.
+
+config CONFIG_UBI_IMG_SPARE_VOLNAME
+	string "U-Boot Spare Volume Name"
+	depends on CONFIG_UBI && CONFIG_UBI_SPARE
+	default "u-boot-spare"
+	help
+	  The name of the UBI volume which contains the spare U-Boot Image.
 
 endmenu
