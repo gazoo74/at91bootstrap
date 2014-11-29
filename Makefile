@@ -127,6 +127,7 @@ IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
 JUMP_ADDR := $(strip $(subst ",,$(CONFIG_JUMP_ADDR)))
 OF_OFFSET := $(strip $(subst ",,$(CONFIG_OF_OFFSET)))
 OF_ADDRESS := $(strip $(subst ",,$(CONFIG_OF_ADDRESS)))
+INITRD_ADDRESS := $(strip $(subst ",,$(CONFIG_INITRD_ADDRESS)))
 BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
 IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
@@ -160,6 +161,10 @@ ifeq ($(CONFIG_OF_LIBFDT), y)
 BLOB:=-dt
 else
 BLOB:=
+endif
+
+ifeq ($(CONFIG_UBI), y)
+BLOB:=$(BLOB)-ubi
 endif
 
 ifeq ($(CONFIG_LOAD_LINUX), y)

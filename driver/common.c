@@ -69,12 +69,37 @@ void init_load_image(struct image_info *image)
 #endif
 
 #ifdef CONFIG_NANDFLASH
+#ifdef CONFIG_UBI
+	image->offset = UBI_OFFSET;
+	image->length = -1;
+	image->volname = UBI_IMG_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image->spare_volname = UBI_IMG_SPARE_VOLNAME;
+#endif
+#else
 	image->offset = IMG_ADDRESS;
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image->length = IMG_SIZE;
 #endif
+#endif
 #ifdef CONFIG_OF_LIBFDT
+#ifdef CONFIG_UBI_DTB
+	image->of_length = -1;
+	image->of_volname = UBI_DTB_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image->of_spare_volname = UBI_DTB_SPARE_VOLNAME;
+#endif
+#else
 	image->of_offset = OF_OFFSET;
+#endif
+#ifdef CONFIG_UBI_INITRD
+	image->initrd_dest = (unsigned char *)INITRD_ADDRESS;
+	image->initrd_length = (unsigned int)-1;
+	image->initrd_volname = UBI_INITRD_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image->initrd_spare_volname = UBI_INITRD_SPARE_VOLNAME;
+#endif
+#endif
 #endif
 #endif
 
@@ -120,7 +145,11 @@ void load_image_done(int retval)
 #if defined(CONFIG_FLASH)
 	media = "FLASH: ";
 #elif defined(CONFIG_NANDFLASH)
+#ifdef CONFIG_UBI
+	media = "UBI: ";
+#else
 	media = "NAND: ";
+#endif
 #elif defined(CONFIG_DATAFLASH)
 	media = "SF: ";
 #elif defined(CONFIG_SDCARD)

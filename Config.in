@@ -80,6 +80,64 @@ source "Config.in.u-boot"
 #
 source "Config.in.app-image"
 
+menu "Unsorted Block Images"
+	depends on CONFIG_NANDFLASH
+
+config CONFIG_UBI
+	bool "Unsorted Block Images Support (EXPERIMENTAL)"
+	default n
+	help
+	  UBI is a software layer above MTD layer which admits of LVM-like
+	  logical volumes on top of MTD devices, hides some complexities of
+	  flash chips like wear and bad blocks and provides some other useful
+	  capabilities. Please, consult the MTD web site for more details
+	  (www.linux-mtd.infradead.org).
+
+config CONFIG_UBI_CRC32
+	bool "Check for CRC"
+	depends on CONFIG_UBI
+	select CONFIG_CRC32
+	default y
+	help
+	  Check for UBI volume integrity using CRC32 algorithm.
+
+config CONFIG_UBI_SPARE
+	bool "Spare Volumes Support"
+	depends on CONFIG_UBI
+	default y
+	help
+	  Load a spare UBI volume if the main UBI volume is marked as update.
+
+config CONFIG_UBI_ADDRESS
+	string "The External Ram Address to Load UBI Volume Table"
+	depends on CONFIG_UBI
+	default "0x70000000" if AT91SAM9G45
+	default "0x20000000"
+	help
+	  The address where to load the UBI volume table.
+
+config CONFIG_UBI_OFFSET
+	string "Flash Offset for UBI Partition"
+	depends on CONFIG_UBI
+	default "0x00020000"
+	help
+	  The NAND Flash offset where starts the UBI partition.
+
+	  Typically: the second block of NAND Flash. The first always contains
+	  the bootstrap binary.
+
+config CONFIG_UBI_SIZE
+	string "Flash Size for UBI Partition"
+	depends on CONFIG_UBI
+	default "0x07FE0000"
+	help
+	  The NAND Flash size of the UBI partition (in bytes).
+
+	  Typically: the NAND Flash size minus one block. The first always contains
+	  the bootstrap binary.
+
+endmenu
+
 config CONFIG_IMAGE_NAME
 	string
 	default "Image" if CONFIG_LINUX_IMAGE
