@@ -116,6 +116,13 @@ source "board/sama5d3xek/Config.in.android_arg"
 source "board/sama5d4ek/Config.in.android_arg"
 source "board/sama5d4_xplained/Config.in.android_arg"
 
+config CONFIG_APPEND_CMDLINE
+	bool "Append the kernel command-line"
+	depends on CONFIG_CMDLINE
+	default n
+	help
+	  Append to the kernel command-line
+
 endmenu
 
 config CONFIG_IMG_ADDRESS
