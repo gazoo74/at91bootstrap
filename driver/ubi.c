@@ -23,6 +23,9 @@
  */
 #include "common.h"
 #include "ubi.h"
+#ifdef CONFIG_UBI_CRC
+#include "crc32.h"
+#endif
 #include "div.h"
 #include "debug.h"
 #include "nandflash.h"
@@ -75,6 +78,9 @@ static int read_headers(struct ubi_device *ubi,
 			struct volid_header **vid_header) {
 	struct ec_header *ec_hdr;
 	struct volid_header *vid_hdr;
+#ifdef CONFIG_UBI_CRC
+	unsigned int hdr_crc, crc;
+#endif
 	*ec_header = NULL;
 	*vid_header = NULL;
 
@@ -90,6 +96,18 @@ static int read_headers(struct ubi_device *ubi,
 		return -1;
 	}
 	*ec_header = ec_hdr;
+
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(0xffffffffU, (const unsigned char *) ec_hdr,
+		    sizeof(struct ec_header) - sizeof(unsigned int));
+	hdr_crc = swap_uint32(ec_hdr->hdr_crc);
+
+	if (hdr_crc != crc) {
+		dbg_info("UBI: Bad Erase-Counter Header CRC"
+			 " at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+		return -1;
+	}
+#endif
 
 	if (swap_uint32(ec_hdr->volid_header_offset) >= ubi->nand->pagesize) {
 		unsigned int p;
@@ -118,6 +136,18 @@ static int read_headers(struct ubi_device *ubi,
 	}
 	*vid_header = vid_hdr;
 
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(0xffffffffU, (const unsigned char *) vid_hdr,
+		    sizeof(struct volid_header) - sizeof(unsigned int));
+	hdr_crc = swap_uint32(vid_hdr->hdr_crc);
+
+	if (hdr_crc != crc) {
+		dbg_info("UBI: Bad Volume-ID Header CRC"
+			 " at PEB %u! (%x != %x)\n", block, hdr_crc, crc);
+		return -1;
+	}
+#endif
+
 	return 0;
 }
 
@@ -129,6 +159,9 @@ static int read_leb(struct ubi_device *ubi,
 		    unsigned char *dest) {
 	unsigned int l = 0, p, size, s;
 	unsigned char *d = dest;
+#ifdef CONFIG_UBI_CRC
+	unsigned int data_crc, crc;
+#endif
 
 	if (vid_header->type == 2)
 		size = swap_uint32(vid_header->data_size);
@@ -147,6 +180,17 @@ static int read_leb(struct ubi_device *ubi,
 		size -= s;
 		l += s;
 	}
+
+#ifdef CONFIG_UBI_CRC
+	crc = crc32(0xffffffffU, dest, swap_uint32(vid_header->data_size));
+	data_crc = swap_uint32(vid_header->data_crc);
+
+	if (data_crc != crc) {
+		dbg_info("UBI: Bad Volume-ID Data CRC"
+			 " at PEB %u! (%x != %x)\n", block, data_crc, crc);
+		return -1;
+	}
+#endif
 
 	*length = l;
 	return *length ? 0 : -1;
@@ -199,7 +243,34 @@ static int read_peb(struct ubi_device *ubi,
 static int check_peb(struct ubi_device *ubi,
 		     unsigned int peb1,
 		     unsigned int peb2) {
+#ifdef CONFIG_UBI_CRC
+	unsigned int size, new, old;
+
+	if (ubi->pebs[peb1].seqnum > ubi->pebs[peb2].seqnum) {
+		new = peb1;
+		old = peb2;
+	}
+	else {
+		new = peb2;
+		old = peb1;
+	}
+
+	/* Check for copy flag first... */
+	if (!ubi->pebs[new].copy)
+		return new;
+
+	/* ... and for PEB consistency (if copy flag is set)... */
+	if (read_peb(ubi, new, &size, ubi->blockbuf, 0)) {
+		dbg_info("UBI: PEB %u is inconsistent!\n", new);
+		return old;
+	}
+
+	return new;
+#else
+	/* Or simply pick up the one with higher sequence number,
+	   if unable to check for PEB consistency. */
 	return ubi->pebs[peb1].seqnum > ubi->pebs[peb2].seqnum ? peb1 : peb2;
+#endif
 }
 
 int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
