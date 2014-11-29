@@ -52,11 +52,12 @@ struct image_info
 	char *filename;
 	unsigned char *dest;
 
-	unsigned char of;
+#ifdef CONFIG_OF_LIBFDT
 	unsigned int of_offset;
 	unsigned int of_length;
 	char *of_filename;
 	unsigned char *of_dest;
+#endif
 };
 
 extern void (*sdcard_set_of_name)(char *);
