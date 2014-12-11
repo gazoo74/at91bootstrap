@@ -462,7 +462,7 @@ void hw_init(void)
 	/* Set ACT8865 output voltage */
 	sama5d3ek_act8865_set_reg_voltage();
 
-	/* Dsiable ACT8865 I2C interface */
+	/* Disable ACT8865 I2C interface */
 	if (act8865_workaround_disable_i2c())
 		while (1)
 			;
