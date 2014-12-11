@@ -187,6 +187,7 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 	ubi->pebs = (struct ubi_peb *) addr;
 	memset(ubi->pebs, 0xFF, ubi->numpebs * sizeof(struct ubi_peb));
 	addr += (ubi->numpebs * sizeof(struct ubi_peb));
+	memset(ubi->vols, 0x00, sizeof(struct ubi_peb *) * UBI_VOL_NAME_MAX);
 	ubi->vol_table = (struct ubi_vtbl_record *) addr;
 	addr += (sizeof(struct ubi_vtbl_record) * UBI_MAX_VOLUMES);
 	ubi->buf = (unsigned char *) addr;
@@ -272,6 +273,13 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 		ubi->pebs[block].data_crc = swap_uint32(vid_hdr->data_crc);
 		ubi->pebs[block].sqnum = swap_uint64(vid_hdr->sqnum);
 		ubi->pebs[block].copy_flag = swap_uint32(vid_hdr->copy_flag);
+		ubi->pebs[block].next = NULL;
+		ubi->pebs[block].prev = NULL;
+
+		if ((ubi->pebs[block].vol_id < UBI_LAYOUT_VOLUME_ID) && (ubi->pebs[block].lnum == 0)) {
+			dbg_loud("UBI: First LEB for volume-id %u is PEB %x!\n", ubi->pebs[block].vol_id, block);
+			ubi->vols[ubi->pebs[block].vol_id] = &ubi->pebs[block];
+		}
 
 		if (swap_uint32(vid_hdr->vol_id) != UBI_LAYOUT_VOLUME_ID) {
 			dbg_very_loud("UBI: Skipping UBI Volume-ID at PEB %u! (%x != %x)\n",
@@ -293,7 +301,17 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 				continue;
 			}
 
-			if (ubi->pebs[pnum].lnum != ubi->pebs[block].lnum) {
+			if (ubi->pebs[block].lnum == (ubi->pebs[pnum].lnum + 1)) {
+				ubi->pebs[block].prev = &ubi->pebs[pnum];
+				ubi->pebs[pnum].next = &ubi->pebs[block];
+				continue;
+			}
+			else if (ubi->pebs[block].lnum == (ubi->pebs[pnum].lnum - 1)) {
+				ubi->pebs[pnum].prev = &ubi->pebs[block];
+				ubi->pebs[block].next = &ubi->pebs[pnum];
+				continue;
+			}
+			else if (ubi->pebs[pnum].lnum != ubi->pebs[block].lnum) {
 				continue;
 			}
 
@@ -363,23 +381,29 @@ unsigned int ubi_searchvolume(struct ubi_device *ubi, const char *volname) {
 }
 
 int ubi_loadimage(struct ubi_device *ubi, unsigned int id, unsigned int *len, unsigned char *dest) {
-	unsigned int length = 0, pnum;
+	struct ubi_peb *a = ubi->vols[id];
+	unsigned int length = 0, pnum = (unsigned int) (a - ubi->pebs);
 
 	for (pnum = 0; pnum < ubi->numpebs; pnum++) {
-		unsigned int l = *len;
-		int ret;
-
-		if (ubi->pebs[pnum].vol_id != id) {
-			continue;
+		if (ubi->pebs[pnum].vol_id == id && ubi->pebs[pnum].lnum == 0) {
+			break;
 		}
+	}
 
-		dbg_loud("UBI: Reading PEB %x for Volume-ID %u...\n", pnum, id);
-		ret = ubi_read_peb(ubi, pnum, ubi->pebs[pnum].lnum, &l, dest);
+	a = &ubi->pebs[pnum];
+	dbg_loud("UBI: First LEB for volume-id %u is PEB %x! @%x\n", id, pnum, a);
+	while (a) {
+		int ret;
+		unsigned int l = *len;
+		pnum = (unsigned int) (a - ubi->pebs);
+
+		dbg_loud("UBI: Reading LEB %x at PEB %x for Volume-ID %u...\n", a->lnum, pnum, id);
+		ret = ubi_read_peb(ubi, pnum, a->lnum, &l, dest);
 		if (ret) {
 			dbg_info("Warning: UBI: Failed to read PEB %u!\n", pnum);
-			continue;
 		}
 
+		a = a->next;
 		length += l;
 	}
 

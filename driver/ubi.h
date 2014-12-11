@@ -363,6 +363,8 @@ struct ubi_peb {
 	unsigned int copy_flag;
 	unsigned int data_crc;
 	unsigned long long int sqnum;
+	struct ubi_peb *next;
+	struct ubi_peb *prev;
 };
 
 struct ubi_device {
@@ -370,6 +372,7 @@ struct ubi_device {
 	unsigned int firstblock;
 	unsigned int numpebs;
 	unsigned char *buf;
+	struct ubi_peb *vols[UBI_VOL_NAME_MAX];
 	struct ubi_peb *pebs;
 	struct ubi_vtbl_record *vol_table;
 };
