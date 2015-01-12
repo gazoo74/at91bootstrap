@@ -339,6 +339,15 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
+PHONY+= allnoconfig allyesconfig allmodconfig alldefconfig randconfig
+
+allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(CONFIG)/conf
+	@mkdir -p $(CONFIG)/at91bootstrap-config
+	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
+		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
+		$(CONFIG)/conf --$@ $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --$@ $(CONFIG_CONFIG_IN)
+
 PHONY+= rebuild
 
 %_defconfig:
