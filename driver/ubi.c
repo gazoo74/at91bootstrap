@@ -280,12 +280,6 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand) {
 			dbg_loud("UBI: First LEB for volume-id %u is PEB %x!\n", ubi->pebs[block].vol_id, block);
 			ubi->vols[ubi->pebs[block].vol_id] = &ubi->pebs[block];
 		}
-
-		if (swap_uint32(vid_hdr->vol_id) != UBI_LAYOUT_VOLUME_ID) {
-			dbg_very_loud("UBI: Skipping UBI Volume-ID at PEB %u! (%x != %x)\n",
-				block, UBI_LAYOUT_VOLUME_ID, swap_uint32(vid_hdr->vol_id));
-			continue;
-		}
 	}
 
 	data = (unsigned char *) ubi->vol_table;
