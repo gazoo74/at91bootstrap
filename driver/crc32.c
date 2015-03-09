@@ -73,6 +73,9 @@ unsigned int crc32(unsigned int crc, const unsigned char *data,
 {
 	const unsigned char *d = data;
 
+	if (!size)
+		return crc ^ ~0U;
+
 	while (size--)
 		crc = CRC32[(crc ^ *d++) & 0xFF] ^ (crc >> 8);
 
