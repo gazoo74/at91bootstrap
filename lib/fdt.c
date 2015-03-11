@@ -244,7 +244,7 @@ static int of_get_nextnode_offset(void *blob,
 	return 0;
 }
 
-static int of_get_node_offset(void *blob, char *name, int *offset)
+int of_get_node_offset(void *blob, char *name, int *offset)
 {
 	int start_offset = 0;
 	int nodeoffset = 0;
@@ -361,10 +361,10 @@ static int of_get_next_property_offset(void *blob,
 	return ret;
 }
 
-static int of_get_property_offset_by_name(void *blob,
-					unsigned int nodeoffset,
-					char *name,
-					int *offset)
+int of_get_property_offset_by_name(void *blob,
+				   unsigned int nodeoffset,
+				   char *name,
+				   int *offset)
 {
 	unsigned int nameoffset;
 	unsigned int *p;
@@ -513,11 +513,11 @@ static int of_update_property_value(void *blob,
 	return 0;
 }
 
-static int of_set_property(void *blob,
-				int nodeoffset,
-				char *property_name,
-				void *value,
-				int valuelen)
+int of_set_property(void *blob,
+		    int nodeoffset,
+		    char *property_name,
+		    void *value,
+		    int valuelen)
 {
 	int property_offset;
 	int ret;
