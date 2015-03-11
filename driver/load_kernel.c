@@ -45,6 +45,74 @@ char *bootargs = CMDLINE;
 #endif
 
 #ifdef CONFIG_OF_LIBFDT
+/* The /chosen node
+ * property "bootargs": This zero-terminated string is passed
+ * as the kernel command line.
+ */
+static int fixup_chosen_node(void *blob, const char *bootargs)
+{
+	int nodeoffset;
+	const char *value = bootargs;
+	int valuelen = strlen(value) + 1;
+	int ret;
+
+	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
+	if (ret) {
+		dbg_info("Kernel/FDT: Failed to get chosen node!\n");
+		return ret;
+	}
+
+	ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen);
+	if (ret) {
+		dbg_info("Kernel/FDT: Failed to set bootargs property!\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+/* The /memory node
+ * Required properties:
+ * - device_type: has to be "memory".
+ * - reg: this property contains all the physical memory ranges of your boards.
+ */
+static int fixup_memory_node(void *blob,
+			     unsigned int *mem_bank,
+			     unsigned int *mem_size)
+{
+	int nodeoffset;
+	unsigned int data[2];
+	int valuelen;
+	int ret;
+
+	ret = of_get_node_offset(blob, "memory", &nodeoffset);
+	if (ret) {
+		dbg_info("Kernel/FDT: Failed to add memory node!\n");
+		return ret;
+	}
+
+	/* set "device_type" property */
+	ret = of_set_property(blob, nodeoffset,
+			      "device_type", "memory", sizeof("memory"));
+	if (ret) {
+		dbg_info("Kernel/FDT: Failed to set device_type property!\n");
+		return ret;
+	}
+
+	/* set "reg" property */
+	valuelen = 8;
+	data[0] = swap_uint32(*mem_bank);
+	data[1] = swap_uint32(*mem_size);
+
+	ret = of_set_property(blob, nodeoffset, "reg", data, valuelen);
+	if (ret) {
+		dbg_info("Kernel/FDT: Failed to set reg property!\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 static int setup_dt_blob(void *blob)
 {
 	unsigned int mem_bank = MEM_BANK;
