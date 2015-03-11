@@ -528,21 +528,11 @@ int of_set_property(void *blob,
 	ret = of_get_property_offset_by_name(blob, nodeoffset,
 					property_name, &property_offset);
 	if (ret) {
-		ret = of_add_property(blob, nodeoffset,
+		return of_add_property(blob, nodeoffset,
 				property_name, value, valuelen);
-		if (ret)
-			dbg_info("DT: fail to add property\n");
-
-		return ret;
 	}
 
-	ret = of_update_property_value(blob, property_offset, value, valuelen);
-	if (ret) {
-		dbg_info("DT: fail to update property\n");
-		return ret;
-	}
-
-	return 0;
+	return of_update_property_value(blob, property_offset, value, valuelen);
 }
 
 /* ---------------------------------------------------- */
