@@ -120,12 +120,9 @@ static int setup_dt_blob(void *blob)
 	int ret;
 
 	if (check_dt_blob_valid(blob)) {
-		dbg_info("DT: the blob is not a valid fdt\n");
+		dbg_info("Kernel/FDT: The blob is not a valid FDT!\n");
 		return -1;
 	}
-
-	dbg_info("\nUsing device tree in place at %d\n",
-						(unsigned int)blob);
 
 #ifdef CMDLINE
 	if (bootargs) {
@@ -217,15 +214,15 @@ int load_kernel(struct image_info *image)
 	r2 = (unsigned int)(MEM_BANK + 0x100);
 #endif
 
-	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
-							mach_type);
+	dbg_info("Kernel: Starting Kernel with mach-id: %x\n", mach_type);
+
 #if defined(CONFIG_ENTER_NWD)
 	monitor_init();
 
 	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
 
-	dbg_info("Enter Normal World, Run Kernel at %d\n",
-					(unsigned int)kernel_entry);
+	dbg_info("Kernel: Enter Normal World, Run Kernel at %x\n",
+		 (unsigned int) kernel_entry);
 
 	enter_normal_world();
 #else
