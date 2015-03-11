@@ -29,20 +29,20 @@
 #define __FDT_H__
 
 extern int of_get_node_offset(void *blob,
-			      char *name,
+			      const char *name,
 			      int *offset);
 extern int of_get_property_offset_by_name(void *blob,
 					  unsigned int nodeoffset,
-					  char *name,
+					  const char *name,
 					  int *offset);
 extern int of_set_property(void *blob,
 			   int nodeoffset,
-			   char *property_name,
-			   void *value,
+			   const char *property_name,
+			   const void *value,
 			   int valuelen);
 extern unsigned int of_get_dt_total_size(void *blob);
 extern int check_dt_blob_valid(void *blob);
-extern int fixup_chosen_node(void *blob, char *bootargs);
+extern int fixup_chosen_node(void *blob, const char *bootargs);
 extern int fixup_memory_node(void *blob,
 				unsigned int *mem_bank,
 				unsigned int *mem_size);

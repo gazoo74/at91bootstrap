@@ -244,7 +244,7 @@ static int of_get_nextnode_offset(void *blob,
 	return 0;
 }
 
-int of_get_node_offset(void *blob, char *name, int *offset)
+int of_get_node_offset(void *blob, const char *name, int *offset)
 {
 	int start_offset = 0;
 	int nodeoffset = 0;
@@ -363,7 +363,7 @@ static int of_get_next_property_offset(void *blob,
 
 int of_get_property_offset_by_name(void *blob,
 				   unsigned int nodeoffset,
-				   char *name,
+				   const char *name,
 				   int *offset)
 {
 	unsigned int nameoffset;
@@ -515,8 +515,8 @@ static int of_update_property_value(void *blob,
 
 int of_set_property(void *blob,
 		    int nodeoffset,
-		    char *property_name,
-		    void *value,
+		    const char *property_name,
+		    const void *value,
 		    int valuelen)
 {
 	int property_offset;
@@ -547,10 +547,10 @@ int check_dt_blob_valid(void *blob)
  * property "bootargs": This zero-terminated string is passed
  * as the kernel command line.
  */
-int fixup_chosen_node(void *blob, char *bootargs)
+int fixup_chosen_node(void *blob, const char *bootargs)
 {
 	int nodeoffset;
-	char *value = bootargs;
+	const char *value = bootargs;
 	int valuelen = strlen(value) + 1;
 	int ret;
 
