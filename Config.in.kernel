@@ -148,4 +148,11 @@ config CONFIG_UBI_DTB_SPARE_VOLNAME
 
 endmenu
 
+config CONFIG_OF
+	bool "Open-Firmware [EXPERIMENTAL]"
+	depends on !CONFIG_OF_LIBFDT
+	default n
+	help
+	  Basic recursive implementation of Open-Firware Flattened Tree format.
+
 endmenu
