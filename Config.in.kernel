@@ -155,4 +155,21 @@ config CONFIG_OF
 	help
 	  Basic recursive implementation of Open-Firware Flattened Tree format.
 
+menu "Flattened Image Tree"
+
+config CONFIG_OF_FIT
+	bool "Flattened Image Tree Support"
+	select CONFIG_OF
+	default n
+	help
+
+config CONFIG_OF_FIT_CRC32
+	bool "Check for CRC32"
+	depends on CONFIG_OF_FIT
+	select CONFIG_CRC32
+	default n
+	help
+
+endmenu
+
 endmenu

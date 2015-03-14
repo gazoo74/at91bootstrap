@@ -9,4 +9,5 @@ COBJS-y		+= $(LIB)/div.o
 
 COBJS-$(CONFIG_CRC32)	+= $(LIB)/crc32.o
 COBJS-$(CONFIG_OF)	+= $(LIB)/of.o
+COBJS-$(CONFIG_OF_FIT)	+= $(LIB)/fit.o
 COBJS-$(CONFIG_OF_LIBFDT) += $(LIB)/fdt.o
