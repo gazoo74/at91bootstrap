@@ -1,9 +1,16 @@
 menu "Kernel Image Storage Setup"
 	depends on CONFIG_LINUX_IMAGE
 
+config CONFIG_LINUX_ITB
+	bool "Load Linux Image Tree Blob (FIT) (EXPERIMENTAL)"
+	select CONFIG_OF_FIT
+	select CONFIG_OF_FDT
+	help
+	  Select to load linux ITB to boot [U-Boot new image]
+
 config CONFIG_KERNEL_CMDLINE
 	bool "Overwrite the kernel command-line"
-	depends on CONFIG_OF_LIBFDT
+	depends on CONFIG_OF_LIBFDT && !CONFIG_LINUX_ITB
 	default n
 	help
 	  Overwrite the kernel command-line

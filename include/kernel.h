@@ -30,6 +30,9 @@
 
 #include <string.h>
 
+#ifdef CONFIG_LINUX_ITB
+#include <fit.h>
+#endif
 #ifndef CONFIG_OF_LIBFDT
 #include "atags.h"
 #endif

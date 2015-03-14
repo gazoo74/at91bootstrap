@@ -189,6 +189,12 @@ int load_kernel(struct image_info *image)
 	slowclk_switch_osc32();
 #endif
 
+#if defined(CONFIG_LINUX_ITB)
+	ret = fit_loadimage(addr, image);
+	if (ret)
+		return -1;
+#endif
+
 #if defined(CONFIG_LINUX_IMAGE)
 	ret = boot_image_setup(addr, &entry_point);
 #endif
