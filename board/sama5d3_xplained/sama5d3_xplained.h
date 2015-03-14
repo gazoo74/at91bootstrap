@@ -211,4 +211,10 @@
  */
 #define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
 
+/*
+ * User function
+ */
+#define CONFIG_USER_BUTTON_PIN	AT91C_PIN_PE(29)
+#define USER_BUTTON_NAME	"BP3/PB_USER"
+
 #endif /* __SAMA5D3_XPLAINED_H__ */

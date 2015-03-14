@@ -186,6 +186,20 @@ static void ddramc_init(void)
 }
 #endif /* #ifdef CONFIG_DDR2 */
 
+#ifdef CONFIG_USER_BUTTON
+static void user_button_hw_init(void)
+{
+	/* Configure user button PINs */
+	const struct pio_desc recovery_button_pins[] = {
+		{"USER_BUTTON", CONFIG_USER_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
+	pio_configure(recovery_button_pins);
+}
+#endif
+
 #ifdef CONFIG_USER_HW_INIT
 /*
  * Special setting for PM.
@@ -414,6 +428,11 @@ void hw_init(void)
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
 	ddramc_init();
+#endif
+
+#ifdef CONFIG_USER_BUTTON
+	/* Init the user button pins */
+	user_button_hw_init();
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */

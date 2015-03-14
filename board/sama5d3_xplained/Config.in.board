@@ -21,5 +21,6 @@ config CONFIG_SAMA5D3_XPLAINED
 	select SUPPORT_BUS_SPEED_133MHZ
 	select SUPPORT_BUS_SPEED_166MHZ
 	select CONFIG_KERNEL_CMDLINE
+	select HAS_BP_USER
 	help
 	    Use the SAMA5D3 Xplained development board
