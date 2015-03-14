@@ -116,6 +116,10 @@ int configuration_property(const char *name, const unsigned char *data,
 
 	if (strcmp(name, "kernel") == 0)
 		type = IMAGE_TYPE_KERNEL;
+#ifdef CONFIG_OF_FDT
+	else if (strcmp(name, "fdt") == 0)
+		type = IMAGE_TYPE_FDT;
+#endif
 	else if (strcmp(name, "ramdisk") == 0)
 		type = IMAGE_TYPE_RAMDISK;
 	else
@@ -187,6 +191,11 @@ int fit_loadimage(unsigned char *blob, struct image_info *image)
 		 images[IMAGE_TYPE_KERNEL].configuration,
 		 images[IMAGE_TYPE_KERNEL].data,
 		 load, entry);
+#ifdef CONFIG_OF_FDT
+	dbg_info("fdt:     %s %x\n",
+		 images[IMAGE_TYPE_FDT].configuration,
+		 images[IMAGE_TYPE_FDT].data);
+#endif
 	dbg_info("ramdisk: %s %x\n",
 		 images[IMAGE_TYPE_RAMDISK].configuration,
 		 images[IMAGE_TYPE_RAMDISK].data);
@@ -199,6 +208,15 @@ int fit_loadimage(unsigned char *blob, struct image_info *image)
 	image->dest = (unsigned char *) images[IMAGE_TYPE_KERNEL].data;
 	dbg_hexdump((unsigned int) images[IMAGE_TYPE_KERNEL].data,
 		    (unsigned char *) images[IMAGE_TYPE_KERNEL].data, 16);
+
+#ifdef CONFIG_OF_FDT
+	if (images[IMAGE_TYPE_FDT].data) {
+		image->fdt_dest =
+				(unsigned char *) images[IMAGE_TYPE_FDT].data;
+		dbg_hexdump((unsigned long int) images[IMAGE_TYPE_FDT].data,
+			    images[IMAGE_TYPE_FDT].data, 16);
+	}
+#endif
 
 	return 0;
 }

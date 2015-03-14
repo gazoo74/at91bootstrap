@@ -73,12 +73,12 @@ struct image_info
 
 #ifdef CONFIG_OF_LIBFDT
 #if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
-	unsigned int of_offset;
-	unsigned int of_length;
+	unsigned int fdt_offset;
+	unsigned int fdt_length;
 #ifdef CONFIG_UBI
-	const char *of_volname;
+	const char *fdt_volname;
 #ifdef CONFIG_UBI_SPARE
-	const char *of_spare_volname;
+	const char *fdt_spare_volname;
 #endif
 #endif
 #endif

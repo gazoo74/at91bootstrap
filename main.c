@@ -86,8 +86,8 @@ int main(void)
 #ifdef CONFIG_SDCARD
 	char filename[FILENAME_BUF_LEN];
 #ifdef CONFIG_OF_LIBFDT
-	char of_filename[FILENAME_BUF_LEN];
-	memset(of_filename, 0, FILENAME_BUF_LEN);
+	char fdt_filename[FILENAME_BUF_LEN];
+	memset(fdt_filename, 0, FILENAME_BUF_LEN);
 #endif
 	memset(filename, 0, FILENAME_BUF_LEN);
 #endif
@@ -95,7 +95,7 @@ int main(void)
 	memset(&image, 0, sizeof(image));
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
-	image.of_dest = (unsigned char *)OF_ADDRESS;
+	image.fdt_dest = (unsigned char *)FDT_ADDRESS;
 #endif
 
 #ifdef CONFIG_FLASH
@@ -105,7 +105,7 @@ int main(void)
 	image.length = IMG_SIZE;
 #endif
 #ifdef CONFIG_OF_LIBFDT
-	image.of_offset = OF_OFFSET;
+	image.fdt_offset = FDT_OFFSET;
 #endif
 #endif
 
@@ -126,12 +126,12 @@ int main(void)
 #endif
 #ifdef CONFIG_OF_LIBFDT
 #ifdef CONFIG_UBI
-	image.of_volname = UBI_DTB_VOLNAME;
+	image.fdt_volname = UBI_DTB_VOLNAME;
 #ifdef CONFIG_UBI_SPARE
-	image.of_spare_volname = UBI_DTB_SPARE_VOLNAME;
+	image.fdt_spare_volname = UBI_DTB_SPARE_VOLNAME;
 #endif
 #else
-	image.of_offset = OF_OFFSET;
+	image.fdt_offset = FDT_OFFSET;
 #endif
 #endif
 #endif
@@ -143,7 +143,7 @@ int main(void)
 	image.length = IMG_SIZE;
 #endif
 #ifdef CONFIG_OF_LIBFDT
-	image.of_offset = OF_OFFSET;
+	image.fdt_offset = FDT_OFFSET;
 #endif
 #endif
 
@@ -152,7 +152,7 @@ int main(void)
 	image.filename = filename;
 	strcpy(image.filename, IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
-	image.of_filename = of_filename;
+	image.fdt_filename = fdt_filename;
 #endif
 #endif
 

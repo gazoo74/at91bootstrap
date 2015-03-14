@@ -636,18 +636,18 @@ int load_dataflash(struct image_info *image)
 #ifdef CONFIG_OF_LIBFDT
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	length = update_image_length(df_desc,
-			image->of_offset, image->of_dest, DT_BLOB);
+			image->fdt_offset, image->fdt_dest, DT_BLOB);
 	if (length == -1)
 		return -1;
 
-	image->of_length = length;
+	image->fdt_length = length;
 #endif
 
 	dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
-		image->of_length, image->of_offset, image->of_dest);
+		image->fdt_length, image->fdt_offset, image->fdt_dest);
 
 	ret = dataflash_read_array(df_desc,
-		image->of_offset, image->of_length, image->of_dest);
+		image->fdt_offset, image->fdt_length, image->fdt_dest);
 	if (ret) {
 		dbg_info("** SF: DT: Serial flash read error**\n");
 		ret = -1;
