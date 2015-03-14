@@ -93,10 +93,6 @@ struct image_info
 extern void (*sdcard_set_of_name)(char *);
 #endif
 
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-extern int kernel_size(unsigned char *addr);
-#endif
-
 #ifdef CMDLINE
 extern char *bootargs;
 #endif
