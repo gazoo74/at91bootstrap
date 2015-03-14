@@ -1,0 +1,27 @@
+config HAS_BP_USER
+	bool
+	default n
+
+menu "UI Options"
+	depends on HAS_BP_USER
+
+config CONFIG_USER_BUTTON
+	bool "Enable User Push-Button Support"
+	default n
+	help
+	  Support for extra function when PB_USER button is hold at power-on
+
+choice
+	prompt "User Push Button"
+	depends on CONFIG_USER_BUTTON
+	default CONFIG_USER_FLASH_RECOVERY if !ALLOW_DATAFLASH_RECOVERY || !ALLOW_NANDFLASH_RECOVERY
+	help
+	  Select the function to run when PB_USER button is hold at power-on
+
+config	CONFIG_USER_FLASH_RECOVERY
+	bool "NAND/Data Flash recovery"
+	depends on !ALLOW_DATAFLASH_RECOVERY || !ALLOW_NANDFLASH_RECOVERY
+
+endchoice
+
+endmenu

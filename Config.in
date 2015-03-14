@@ -106,6 +106,8 @@ config CONFIG_DEBUG_VERY_LOUD
 
 endchoice
 
+source "Config.in.ui"
+
 source "Config.in.secure"
 
 config CONFIG_THUMB
