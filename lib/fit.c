@@ -176,6 +176,10 @@ int element(const char *name)
 
 int fit_loadimage(unsigned char *blob, struct image_info *image)
 {
+#ifdef CONFIG_ITB_CONFIGURATION
+	default_conf = ITB_CONFIGURATION;
+#endif /* #ifdef CONFIG_ITB_CONFIGURATION */
+
 	dbg_info("FIT: Magic number %x\n", of_get_magic_number(blob));
 	dbg_info("FIT: Version: %u\n", of_get_format_version(blob));
 

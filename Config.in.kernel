@@ -170,6 +170,12 @@ config CONFIG_OF_FIT
 	default n
 	help
 
+config CONFIG_OF_ITB_CONFIGURATION
+	default "default"
+	string "Configuration to load"
+	help
+	  The name of the configuration to load.
+
 config CONFIG_OF_FIT_CRC32
 	bool "Check for CRC32"
 	depends on CONFIG_OF_FIT
