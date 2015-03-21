@@ -30,6 +30,22 @@
 #include "debug.h"
 #include "of.h"
 
+#ifdef CONFIG_USER_SET_ITB_CONFIGURATION
+static void set_configuration()
+{
+	dbg_info("FIT: Hold the user button (%s)"
+		 " to set configuration to %s.\n",
+		 CONFIG_USER_ITB_CONFIGURATION);
+
+	if ((pio_get_value(CONFIG_USER_BUTTON_PIN)) == 0) {
+		dbg_info("FIT: The user button (%s) has been pressed\n",
+			 RECOVERY_BUTTON_NAME);
+
+		conf_default = CONFIG_USER_ITB_CONFIGURATION
+	}
+}
+#endif /* #ifdef CONFIG_USER_SET_ITB_CONFIGURATION */
+
 enum image_type_t
 {
 	IMAGE_TYPE_KERNEL,
@@ -179,6 +195,10 @@ int fit_loadimage(unsigned char *blob, struct image_info *image)
 #ifdef CONFIG_ITB_CONFIGURATION
 	default_conf = ITB_CONFIGURATION;
 #endif /* #ifdef CONFIG_ITB_CONFIGURATION */
+
+#ifdef CONFIG_USER_SET_ITB_CONFIGURATION
+	set_configuration();
+#endif /* #ifdef CONFIG_USER_SET_ITB_CONFIGURATION */
 
 	dbg_info("FIT: Magic number %x\n", of_get_magic_number(blob));
 	dbg_info("FIT: Version: %u\n", of_get_format_version(blob));

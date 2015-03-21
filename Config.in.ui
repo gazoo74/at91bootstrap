@@ -15,7 +15,8 @@ choice
 	prompt "User Push Button"
 	depends on CONFIG_USER_BUTTON
 	default CONFIG_USER_FLASH_RECOVERY if !ALLOW_DATAFLASH_RECOVERY || !ALLOW_NANDFLASH_RECOVERY
-	default CONFIG_USER_EXTRA_KERNEL_ARGS if (CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID) && CONFIG_OF_LIBFDT
+	default CONFIG_USER_EXTRA_KERNEL_ARGS if (CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID) && CONFIG_OF_LIBFDT && !CONFIG_LINUX_ITB
+	default CONFIG_USER_SET_ITB_CONFIGURATION if CONFIG_LINUX_ITB
 	help
 	  Select the function to run when PB_USER button is hold at power-on
 
@@ -28,6 +29,17 @@ config	CONFIG_USER_KERNEL_EXTRA_ARGS
 	select CONFIG_KERNEL_PREPEND_EXTRA_ARGS
 	depends on (CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID) && CONFIG_OF_LIBFDT && !CONFIG_LINUX_ITB
 
+config	CONFIG_USER_SET_ITB_CONFIGURATION
+	bool "Set ITB configuration"
+	depends on CONFIG_LINUX_ITB
+
 endchoice
+
+config CONFIG_USER_ITB_CONFIGURATION
+	string "Image-Tree Blob configuration"
+	depends on CONFIG_USER_SET_ITB_CONFIGURATION
+	default "default"
+	help
+	  This overrides the default configuration to run.
 
 endmenu
