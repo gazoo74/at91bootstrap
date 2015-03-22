@@ -38,6 +38,25 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "Android kernel command-line"
 source "board/sama5d3xek/Config.in.android_arg"
 
+config CONFIG_KERNEL_PREPEND_EXTRA_ARGS
+	bool "Prepend extra argument(s)"
+
+config CONFIG_KERNEL_EXTRA_ARGS
+	string "Kernel extra argument(s)"
+	depends on CONFIG_KERNEL_PREPEND_EXTRA_ARGS
+	default "console=ttyS0,115200"
+	help
+	  Passing extra argument(s) to kernel via command-line.
+
+	  Example for System-V init like:
+	   * entering in emergency mode: "-b", or
+	   * in single-user mode: "-s", or
+	   * running user-land in special run-level: "2"
+	  or for Kernel:
+	   * enabling verbose mode: "console=ttyS0", or
+	   * and evenmore verbose with early traces:
+	     "console=ttyS0,115200 earlyprintk"
+
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if AT91SAM9G45

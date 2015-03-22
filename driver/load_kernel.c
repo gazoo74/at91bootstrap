@@ -141,6 +141,12 @@ static int setup_dt_blob(void *blob)
 	}
 #endif
 
+#ifdef CONFIG_KERNEL_PREPEND_EXTRA_ARGS
+	ret = fixup_chosen_node(blob, CONFIG_KERNEL_PREPEND_EXTRA_ARGS" ", 1);
+	if (ret)
+		return ret;
+#endif
+
 	ret = fixup_memory_node(blob, &mem_bank, &mem_size);
 	if (ret)
 		return ret;

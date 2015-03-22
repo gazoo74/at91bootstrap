@@ -15,12 +15,18 @@ choice
 	prompt "User Push Button"
 	depends on CONFIG_USER_BUTTON
 	default CONFIG_USER_FLASH_RECOVERY if !ALLOW_DATAFLASH_RECOVERY || !ALLOW_NANDFLASH_RECOVERY
+	default CONFIG_USER_EXTRA_KERNEL_ARGS if (CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID) && CONFIG_OF_LIBFDT
 	help
 	  Select the function to run when PB_USER button is hold at power-on
 
 config	CONFIG_USER_FLASH_RECOVERY
 	bool "NAND/Data Flash recovery"
 	depends on !ALLOW_DATAFLASH_RECOVERY || !ALLOW_NANDFLASH_RECOVERY
+
+config	CONFIG_USER_KERNEL_EXTRA_ARGS
+	bool "Passing extra argument(s) to Kernel command-line"
+	select CONFIG_KERNEL_PREPEND_EXTRA_ARGS
+	depends on (CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID) && CONFIG_OF_LIBFDT && !CONFIG_LINUX_ITB
 
 endchoice
 
