@@ -8,15 +8,15 @@ config CONFIG_LINUX_ITB
 	help
 	  Select to load linux ITB to boot [U-Boot new image]
 
-config CONFIG_KERNEL_CMDLINE
+config CONFIG_KERNEL_OVERWRITE_CMDLINE
 	bool "Overwrite the kernel command-line"
 	depends on CONFIG_OF_LIBFDT && !CONFIG_LINUX_ITB
 	default n
 	help
 	  Overwrite the kernel command-line
 
-config CONFIG_LINUX_KERNEL_ARG_STRING
-	depends on CONFIG_LOAD_LINUX && (CONFIG_KERNEL_CMDLINE || !CONFIG_OF_LIBFDT)
+config CONFIG_KERNEL_CMDLINE
+	depends on CONFIG_LOAD_LINUX && (CONFIG_KERNEL_OVERWRITE_CMDLINE || !CONFIG_OF_LIBFDT)
 	string "Linux kernel command-line"
 source "board/at91sam9261ek/Config.in.linux_arg"
 source "board/at91sam9263ek/Config.in.linux_arg"
@@ -33,8 +33,8 @@ source "board/sama5d3x_cmp/Config.in.linux_arg"
 source "board/sama5d4ek/Config.in.linux_arg"
 source "board/sama5d4_xplained/Config.in.linux_arg"
 
-config CONFIG_LINUX_KERNEL_ARG_STRING
-	depends on CONFIG_LOAD_ANDROID && (CONFIG_KERNEL_CMDLINE || !CONFIG_OF_LIBFDT)
+config CONFIG_KERNEL_CMDLINE
+	depends on CONFIG_LOAD_ANDROID && (CONFIG_KERNEL_OVERWRITE_CMDLINE || !CONFIG_OF_LIBFDT)
 	string "Android kernel command-line"
 source "board/sama5d3xek/Config.in.android_arg"
 
