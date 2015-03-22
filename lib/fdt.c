@@ -508,6 +508,8 @@ static int of_update_property_value(void *blob,
 
 	/* set the new len and value */
 	*plen = swap_uint32(valuelen);
+	if (valuelen > oldlen)
+		memset(pvalue + oldlen, 0, OF_ALIGN(valuelen) - oldlen);
 	memcpy(pvalue, value, valuelen);
 
 	return 0;
