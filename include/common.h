@@ -87,6 +87,12 @@ struct image_info
 #endif
 	unsigned char *fdt_dest;
 #endif
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	void (*entry_point)(unsigned int, unsigned int, unsigned int);
+	unsigned int r1;
+	unsigned int r2;
+#endif
 };
 
 #ifdef CONFIG_SDCARD

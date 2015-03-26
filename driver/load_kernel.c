@@ -172,19 +172,11 @@ int load_kernel(struct image_info *image)
 {
 	unsigned char *addr = image->dest;
 	unsigned int entry_point;
-	unsigned int r2;
-	unsigned int mach_type;
 	int ret;
-
-	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
 	ret = load_kernel_image(image);
 	if (ret)
 		return ret;
-
-#ifdef CONFIG_SCLK
-	slowclk_switch_osc32();
-#endif
 
 #if defined(CONFIG_LINUX_ITB)
 	ret = fit_loadimage(addr, image);
@@ -198,35 +190,20 @@ int load_kernel(struct image_info *image)
 	if (ret)
 		return -1;
 
-	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
+	image->entry_point = (void (*)(unsigned int, unsigned int, unsigned int)) entry_point;
 
 #ifdef CONFIG_OF_LIBFDT
 	ret = setup_dt_blob((char *)image->fdt_dest);
 	if (ret)
 		return ret;
 
-	mach_type = 0xffffffff;
-	r2 = (unsigned int)image->fdt_dest;
+	image->r1 = 0xffffffff;
+	image->r2 = (unsigned int) image->fdt_dest;
 #else
 	atags_setup_boot_params();
 
-	mach_type = MACH_TYPE;
-	r2 = (unsigned int)(MEM_BANK + 0x100);
-#endif
-
-	dbg_info("Kernel: Starting Kernel with mach-id: %x\n", mach_type);
-
-#if defined(CONFIG_ENTER_NWD)
-	monitor_init();
-
-	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
-
-	dbg_info("Kernel: Enter Normal World, Run Kernel at %x\n",
-		 (unsigned int) kernel_entry);
-
-	enter_normal_world();
-#else
-	kernel_entry(0, mach_type, r2);
+	image->r1 = MACH_TYPE;
+	image->r2 = (unsigned int) (MEM_BANK + 0x100);
 #endif
 
 	return 0;

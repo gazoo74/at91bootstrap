@@ -216,11 +216,24 @@ int main(void)
 	slowclk_switch_osc32();
 #endif
 
-#if defined(CONFIG_ENTER_NWD)
-	switch_normal_world();
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	dbg_info("Kernel: About to start Kernel at %x with %s at %x...\n",
+		 (unsigned int) image.entry_point,
+		 image.r1 == 0xffffffff ? "DT" : "ATAGS", image.r1);
 
-	/* point never reached with TZ support */
+#if defined(CONFIG_ENTER_NWD)
+	dbg_info("Kernel/TZ: Entering Normal Mode\n");
+
+	monitor_init();
+	init_loadkernel_args(0, image.r1,
+			     (unsigned int) image.r2,
+			     (unsigned int) image.entry_point);
+	enter_normal_world();
+	switch_normal_world();
+#else
+	image.entry_point(0, image.r1, image.r2);
 #endif
+#endif /* #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID) */
 
 	return JUMP_ADDR;
 }
