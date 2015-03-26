@@ -282,8 +282,6 @@ int of_get_node_offset(void *blob, const char *name, int *offset)
 	return 0;
 }
 
-/* -------------------------------------------------------- */
-
 static int of_blob_move_dt_struct(void *blob,
 					void *point,
 					int oldlen,
@@ -546,8 +544,6 @@ int of_set_property(void *blob,
 
 	return of_update_property_value(blob, property_offset, value, valuelen, prepend);
 }
-
-/* ---------------------------------------------------- */
 
 int check_dt_blob_valid(void *blob)
 {

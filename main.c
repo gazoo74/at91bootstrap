@@ -66,7 +66,7 @@ static int init_loadfunction(void)
 #else
 #error "No booting media_str specified!"
 #endif
-#endif
+#endif /* #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID) */
 	return 0;
 }
 

@@ -68,10 +68,10 @@ static struct nand_chip nand_ids[] = {
 	{0xadca, 0x800, 0x20000, 0x800, 0x40, 0x1},
 	/* EON EN27LN1G08 128MB */
 	{0x92f1, 0x400, 0x20000, 0x800, 0x40, 0x0},
-#endif
+#endif /* CONFIG_AT91SAM9260EK */
 	{0,}
 };
-#endif
+#endif /* CONFIG_NANDFLASH_SMALL_BLOCKS */
 
 /* ooblayout */
 static struct nand_ooblayout nand_oob_layout;
@@ -139,14 +139,14 @@ static void nand_cs_enable(void)
 {
 #ifdef CONFIG_SYS_NAND_ENABLE_PIN
 	pio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, 0);
-#endif
+#endif /* CONFIG_SYS_NAND_ENABLE_PIN */
 }
 
 static void nand_cs_disable(void)
 {
 #ifdef CONFIG_SYS_NAND_ENABLE_PIN
 	pio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, 1);
-#endif
+#endif /* CONFIG_SYS_NAND_ENABLE_PIN */
 }
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
@@ -207,7 +207,7 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 		}
 		break;
 	}
-#endif
+#endif /* CONFIG_USE_PMECC */
 	for (i = 0; i < layout->eccbytes; i++)
 		layout->eccpos[i] = oobsize - layout->eccbytes + i;
 }
@@ -283,7 +283,7 @@ static int nand_init_on_die_ecc(void)
 	is_enable = 1;
 #else
 	is_enable = 0;
-#endif
+#endif /* CONFIG_ON_DIE_ECC */
 	if (nand_set_on_die_ecc(is_enable)) {
 		dbg_info("WARNING: Fail to %s On-Die ECC\n",
 				is_enable ? "enable" : "disable");
@@ -461,7 +461,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->sectorsize = nand->pagesize + nand->oobsize;
 #ifdef CONFIG_USE_PMECC
 	choose_pmecc_info(nand, chip);
-#endif
+#endif /* #ifdef CONFIG_USE_PMECC */
 	/* the layout of the spare area */
 	config_nand_ooblayout(&nand_oob_layout, nand, chip);
 	nand->ecclayout = &nand_oob_layout;
@@ -510,12 +510,12 @@ static int nandflash_get_type(struct nand_info *nand)
 		dbg_info("NAND: Not find support device!\n");
 		return -1;
 	}
-#endif
+#endif /* #ifdef CONFIG_ONFI_DETECT_SUPPORT */
 
 #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT
 	if (nand_init_on_die_ecc())
 		return -1;
-#endif
+#endif /* #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT */
 
 	nand_info_init(nand, chip);
 	
@@ -571,7 +571,7 @@ static int nand_read_status(void)
 		dbg_info("WARNING: Read On-Die ECC error\n");
 		return -1;
 	}
-#endif
+#endif /* #ifdef CONFIG_ON_DIE_ECC */
 
 	return 0;
 }
@@ -700,7 +700,7 @@ static int nand_read_sector(struct nand_info *nand,
 #ifdef CONFIG_USE_PMECC
 	if (usepmecc)
 		pmecc_start_data_phase();
-#endif
+#endif /* #ifdef CONFIG_USE_PMECC */
 	/* Read loop */
 	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) {
@@ -714,7 +714,7 @@ static int nand_read_sector(struct nand_info *nand,
 #ifdef CONFIG_USE_PMECC
 		if (usepmecc)
 			ret = pmecc_process(nand, buffer);
-#endif
+#endif /* #ifdef CONFIG_USE_PMECC */
 	}
 
 	nand_cs_disable();
@@ -830,7 +830,7 @@ static int nandflash_recovery(struct nand_info *nand)
 			RECOVERY_BUTTON_NAME);
 
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_info("NAND: The recovery button (%s) has been "\
+		dbg_info("NAND: The recovery button (%s) has been "
 				"pressed\n", RECOVERY_BUTTON_NAME);
 		dbg_info("NAND: The block 0 is erasing ...\n");
 
@@ -863,7 +863,7 @@ int nand_loadvolume(struct ubi_device *ubi,
 			const char *volname,
 #ifdef CONFIG_UBI_SPARE
 			const char *spare_volname,
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 			unsigned int *length,
 			unsigned char *dest)
 {
@@ -881,7 +881,7 @@ int nand_loadvolume(struct ubi_device *ubi,
 			return -1;
 #else
 		return -1;
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 	}
 
 	dbg_loud("NAND: Loading UBI volume %s with volume-id %x...\n", vol, id);
@@ -953,7 +953,7 @@ int nand_loadimage(struct nand_info *nand,
 	return 0;
 }
 
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+#if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB)
 static int update_image_length(struct nand_info *nand,
 				unsigned int offset,
 				unsigned char *dest,
@@ -973,9 +973,9 @@ static int update_image_length(struct nand_info *nand,
 		return of_get_dt_total_size((void *)dest);
 #else
 	return -1;
-#endif
+#endif /* CONFIG_OF_LIBFDT */
 }
-#endif
+#endif /* #if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB) */
 #endif
 
 int load_nandflash(struct image_info *image)
@@ -983,7 +983,7 @@ int load_nandflash(struct image_info *image)
 	struct nand_info nand;
 #ifdef CONFIG_UBI
 	struct ubi_device ubi;
-#endif
+#endif /* #ifdef CONFIG_UBI */
 	int ret;
 
 	nandflash_hw_init();
@@ -994,16 +994,16 @@ int load_nandflash(struct image_info *image)
 #ifdef CONFIG_NANDFLASH_RECOVERY
 	if (nandflash_recovery(&nand) == 0)
 		return -2;
-#endif
+#endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
 #ifdef CONFIG_USE_PMECC
 	if (init_pmecc(&nand))
 		return -1;
-#endif
+#endif /* #ifdef CONFIG_USE_PMECC */
 
 #ifdef CONFIG_ENABLE_SW_ECC
 	dbg_info("NAND: Using Software ECC\n");
-#endif
+#endif /* #ifdef CONFIG_ENABLE_SW_ECC */
 
 #ifdef CONFIG_UBI
 	dbg_info("NAND: Initialize UBI...\n");
@@ -1019,12 +1019,12 @@ int load_nandflash(struct image_info *image)
 		image->spare_volname,
 #else
 		"(no spare-volume)",
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 		image->dest, image->length);
 	ret = nand_loadvolume(&ubi, image->volname,
 #ifdef CONFIG_UBI_SPARE
 			image->spare_volname,
-#endif
+#endif /* CONFIG_UBI_SPARE */
 			&image->length, image->dest);
 	if (ret) {
 		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->volname,
@@ -1032,11 +1032,12 @@ int load_nandflash(struct image_info *image)
 			image->spare_volname
 #else
 			"(no spare-volume)"
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 			);
 		return -1;
 	}
 
+#if 1
 #ifdef CONFIG_OF_LIBFDT
 	dbg_info("NAND: Loading UBI volume %s %s to @%x (%u bytes length)...\n",
 		image->fdt_volname,
@@ -1044,12 +1045,12 @@ int load_nandflash(struct image_info *image)
 		image->fdt_spare_volname,
 #else
 		"(no spare-volume)",
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 		image->fdt_dest, image->fdt_length);
 	ret = nand_loadvolume(&ubi, image->fdt_volname,
 #ifdef CONFIG_UBI_SPARE
 			image->fdt_spare_volname,
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 			&image->fdt_length, image->fdt_dest);
 	if (ret) {
 		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->fdt_volname,
@@ -1057,21 +1058,23 @@ int load_nandflash(struct image_info *image)
 			image->fdt_spare_volname
 #else
 			"(no spare-volume)"
-#endif
+#endif /* #ifdef CONFIG_UBI_SPARE */
 			);
 		return -1;
 	}
 #endif
+#endif
+	return 0;
+
 #else
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+#if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB)
 	int length = update_image_length(&nand,
 				image->offset, image->dest, KERNEL_IMAGE);
 	if (length == -1)
 		return -1;
 
 	image->length = length;
-#endif
-
+#endif /* #if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB) */
 	dbg_info("NAND: Image: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
@@ -1080,14 +1083,14 @@ int load_nandflash(struct image_info *image)
 		return ret;
 
 #ifdef CONFIG_OF_LIBFDT
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+#if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB)
 	length = update_image_length(&nand,
 			image->fdt_offset, image->fdt_dest, DT_BLOB);
 	if (length == -1)
 		return -1;
 
 	image->fdt_length = length;
-#endif
+#endif /* #if (defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)) && !defined(CONFIG_LINUX_ITB) */
 
 	dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
 		image->fdt_length, image->fdt_offset, image->fdt_dest);
@@ -1096,7 +1099,7 @@ int load_nandflash(struct image_info *image)
 				image->fdt_length, image->fdt_dest);
 	if (ret)
 		return ret;
-#endif
-#endif
+#endif /* #ifdef CONFIG_OF_LIBFDT */
+#endif /* #ifdef CONFIG_UBI */
 	return 0;
  }
