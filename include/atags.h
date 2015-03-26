@@ -80,9 +80,9 @@ struct tag_none {
 };
 
 static inline void atags_setup_commandline_tag(struct tag_cmdline *params,
-					       char *commandline)
+					       const char *commandline)
 {
-	char *p;
+	const char *p;
 
 	if (!commandline)
 		return;
