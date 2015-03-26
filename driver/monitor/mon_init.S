@@ -113,7 +113,7 @@ monitor_init:
  *
  * r0 : 0
  * r1 : Valid machine type number
- * r2 : physical pointer to the device-tree block
+ * r2 : physical pointer to the device-tree blob
  * r3 : overwrite the PC_OFF
  */
 init_loadkernel_args:
