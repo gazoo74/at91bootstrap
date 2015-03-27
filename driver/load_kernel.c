@@ -206,10 +206,10 @@ int load_kernel(struct image_info *image)
 	image->r1 = 0xffffffff;
 	image->r2 = (unsigned int) image->fdt_dest;
 #else
-	atags_setup_boot_params();
-
 	image->r1 = MACH_TYPE;
 	image->r2 = (unsigned int) (MEM_BANK + 0x100);
+
+	atags_setup_boot_params(&image->r2);
 #endif
 
 	return 0;

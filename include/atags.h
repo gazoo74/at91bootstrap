@@ -99,10 +99,8 @@ static inline void atags_setup_commandline_tag(struct tag_cmdline *params,
 	strcpy(params->cmdline, p);
 }
 
-static inline void atags_setup_boot_params(void)
+static inline void atags_setup_boot_params(unsigned int *params)
 {
-	unsigned int *params = (unsigned int *) MEM_BANK + 0x100;
-
 	struct tag_core *coreparam = (struct tag_core *) params;
 	coreparam->header.tag = TAG_FLAG_CORE;
 	coreparam->header.size = TAG_SIZE_CORE;
