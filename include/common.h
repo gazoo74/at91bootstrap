@@ -83,9 +83,9 @@ struct image_info
 #endif
 #endif
 #ifdef CONFIG_SDCARD
-	char *of_filename;
+	char *fdt_filename;
 #endif
-	unsigned char *of_dest;
+	unsigned char *fdt_dest;
 #endif
 };
 

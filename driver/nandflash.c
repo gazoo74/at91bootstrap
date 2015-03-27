@@ -1039,22 +1039,22 @@ int load_nandflash(struct image_info *image)
 
 #ifdef CONFIG_OF_LIBFDT
 	dbg_info("NAND: Loading UBI volume %s %s to @%x (%u bytes length)...\n",
-		image->of_volname,
+		image->fdt_volname,
 #ifdef CONFIG_UBI_SPARE
-		image->of_spare_volname,
+		image->fdt_spare_volname,
 #else
 		"(no spare-volume)",
 #endif
-		image->of_dest, image->of_length);
-	ret = nand_loadvolume(&ubi, image->of_volname,
+		image->fdt_dest, image->fdt_length);
+	ret = nand_loadvolume(&ubi, image->fdt_volname,
 #ifdef CONFIG_UBI_SPARE
-			image->of_spare_volname,
+			image->fdt_spare_volname,
 #endif
-			&image->of_length, image->of_dest);
+			&image->fdt_length, image->fdt_dest);
 	if (ret) {
-		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->of_volname,
+		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->fdt_volname,
 #ifdef CONFIG_UBI_SPARE
-			image->of_spare_volname
+			image->fdt_spare_volname
 #else
 			"(no spare-volume)"
 #endif
@@ -1082,18 +1082,18 @@ int load_nandflash(struct image_info *image)
 #ifdef CONFIG_OF_LIBFDT
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	length = update_image_length(&nand,
-			image->of_offset, image->of_dest, DT_BLOB);
+			image->fdt_offset, image->fdt_dest, DT_BLOB);
 	if (length == -1)
 		return -1;
 
-	image->of_length = length;
+	image->fdt_length = length;
 #endif
 
 	dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
-		image->of_length, image->of_offset, image->of_dest);
+		image->fdt_length, image->fdt_offset, image->fdt_dest);
 
 	ret = nand_loadimage(&nand, image->of_offset,
-				image->of_length, image->of_dest);
+				image->fdt_length, image->fdt_dest);
 	if (ret)
 		return ret;
 #endif

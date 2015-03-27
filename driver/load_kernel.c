@@ -198,12 +198,12 @@ int load_kernel(struct image_info *image)
 	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
 
 #ifdef CONFIG_OF_LIBFDT
-	ret = setup_dt_blob((char *)image->of_dest);
+	ret = setup_dt_blob((char *)image->fdt_dest);
 	if (ret)
 		return ret;
 
 	mach_type = 0xffffffff;
-	r2 = (unsigned int)image->of_dest;
+	r2 = (unsigned int)image->fdt_dest;
 #else
 	atags_setup_boot_params();
 

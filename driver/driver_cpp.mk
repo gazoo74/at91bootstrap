@@ -107,6 +107,10 @@ ifeq ($(CONFIG_OF_LIBFDT),y)
 CPPFLAGS += -DCONFIG_OF_LIBFDT
 endif
 
+ifeq ($(CONFIG_OF_FDT),y)
+CPPFLAGS += -DCONFIG_OF_FDT
+endif
+
 ifeq ($(CONFIG_OF_IFT),y)
 CPPFLAGS += -DCONFIG_OF_IFT
 endif
