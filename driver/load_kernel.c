@@ -113,7 +113,7 @@ static int fixup_memory_node(void *blob,
 	return 0;
 }
 
-static int setup_dt_blob(void *blob)
+static int dtb_setup(void *blob)
 {
 	unsigned int mem_bank = MEM_BANK;
 	unsigned int mem_size = MEM_SIZE;
@@ -202,14 +202,14 @@ int load_kernel(struct image_info *image)
 	image->r1 = 0xffffffff;
 	image->r2 = (unsigned int) image->fdt_dest;
 
-	ret = setup_dt_blob((char *) &image->r2);
+	ret = dtb_setup((char *) &image->r2);
 	if (ret)
 		return ret;
 #else
 	image->r1 = MACH_TYPE;
 	image->r2 = (unsigned int) (MEM_BANK + 0x100);
 
-	atags_setup_boot_params(&image->r2);
+	atags_setup(&image->r2);
 #endif
 
 	return 0;
