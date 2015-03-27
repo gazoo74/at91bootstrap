@@ -199,12 +199,12 @@ int load_kernel(struct image_info *image)
 	image->entry_point = (void (*)(unsigned int, unsigned int, unsigned int)) entry_point;
 
 #ifdef CONFIG_OF_LIBFDT
-	ret = setup_dt_blob((char *)image->fdt_dest);
-	if (ret)
-		return ret;
-
 	image->r1 = 0xffffffff;
 	image->r2 = (unsigned int) image->fdt_dest;
+
+	ret = setup_dt_blob((char *) &image->r2);
+	if (ret)
+		return ret;
 #else
 	image->r1 = MACH_TYPE;
 	image->r2 = (unsigned int) (MEM_BANK + 0x100);
