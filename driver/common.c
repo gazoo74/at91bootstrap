@@ -90,7 +90,7 @@ void init_load_image(struct image_info *image)
 	image->of_spare_volname = UBI_DTB_SPARE_VOLNAME;
 #endif
 #else
-	image->of_offset = OF_OFFSET;
+	image->of_offset = 0;
 #endif
 #ifdef CONFIG_UBI_INITRD
 	image->initrd_dest = (unsigned char *)INITRD_ADDRESS;
